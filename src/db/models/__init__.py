@@ -1,9 +1,16 @@
 import os
 import importlib
 
-package_dir = os.path.dirname(__file__)
+def import_submodules(package_name, package_path):
+    for entry in os.scandir(package_path):
+        if entry.is_file() and entry.name.endswith(".py") and entry.name != "__init__.py":
+            module = f"{package_name}.{entry.name[:-3]}"
+            importlib.import_module(module)
 
-for filename in os.listdir(package_dir):
-    if filename.endswith(".py") and filename != "__init__.py":
-        module_name = f"{__name__}.{filename[:-3]}"
-        importlib.import_module(module_name)
+        elif entry.is_dir():
+            subpackage = f"{package_name}.{entry.name}"
+            subpath = entry.path
+            importlib.import_module(subpackage)
+            import_submodules(subpackage, subpath)
+
+import_submodules(__name__, os.path.dirname(__file__))
