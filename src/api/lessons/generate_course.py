@@ -1,13 +1,12 @@
 import json
 from db.models.user import User
 from db.models.lessons.themes import Theme
-from db.models.lessons.lessons import Lessons
 
 from db.deps import db
 
 from ai.model_clients import AuroraAlphaClient
 
-from templates.promts.generate_course_promt import generate_course_promt
+from templates.promts.generate_course_prompt import generate_course_prompt
 
 def generate_course(user_id: int, lesson_theme: str):
 
@@ -15,7 +14,7 @@ def generate_course(user_id: int, lesson_theme: str):
     if user is None:
         raise Exception("User not found")
     
-    promt = generate_course_promt.substitute(lesson_theme=lesson_theme)
+    promt = generate_course_prompt.substitute(lesson_theme=lesson_theme)
     response = AuroraAlphaClient.generate_response(prompt=promt)
     json_response = json.loads(response)
 
