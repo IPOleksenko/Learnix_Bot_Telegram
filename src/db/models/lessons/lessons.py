@@ -16,7 +16,7 @@ class Lessons(Base):
     lesson_topic = Column(String, nullable=False)
     theory = Column(String, nullable=True)
     task = Column(String, nullable=True)
-    is_complated = Column(Boolean, nullable=False, default=False)    
+    is_completed = Column(Boolean, nullable=False, default=False)    
 
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

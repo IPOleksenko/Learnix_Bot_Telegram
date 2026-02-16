@@ -6,7 +6,7 @@ from db.deps import db
 
 from ai.model_clients import AuroraAlphaClient
 
-from templates.promts.generate_course_prompt import generate_course_prompt
+from templates.prompts.generate_course_prompt import generate_course_prompt
 
 def generate_course(user_id: int, lesson_theme: str):
 
@@ -14,8 +14,8 @@ def generate_course(user_id: int, lesson_theme: str):
     if user is None:
         raise Exception("User not found")
     
-    promt = generate_course_prompt.substitute(lesson_theme=lesson_theme)
-    response = AuroraAlphaClient.generate_response(prompt=promt)
+    prompt = generate_course_prompt.substitute(lesson_theme=lesson_theme)
+    response = AuroraAlphaClient.generate_response(prompt=prompt)
     json_response = json.loads(response)
 
     theme = Theme(

@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: ba0393d8f82f
+Revision ID: bfc3bbe61e50
 Revises: 
-Create Date: 2026-02-14 16:55:58.027486
+Create Date: 2026-02-16 07:09:41.650406
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'ba0393d8f82f'
+revision: str = 'bfc3bbe61e50'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -54,7 +54,7 @@ def upgrade() -> None:
     sa.Column('lesson_topic', sa.String(), nullable=False),
     sa.Column('theory', sa.String(), nullable=True),
     sa.Column('task', sa.String(), nullable=True),
-    sa.Column('is_complated', sa.Boolean(), nullable=False),
+    sa.Column('is_completed', sa.Boolean(), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['theme_id'], ['theme.id'], name=op.f('fk_lesson_theme_id_theme')),

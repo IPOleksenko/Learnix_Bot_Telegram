@@ -7,7 +7,7 @@ from db.deps import db
 
 from ai.model_clients import AuroraAlphaClient
 
-from templates.promts.generate_lesson_prompt import generate_lesson_prompt
+from templates.prompts.generate_lesson_prompt import generate_lesson_prompt
 
 def generate_lesson(user_id: int, course_id: int, lesson_id: int):
     user = db().query(User).filter_by(telegram_id=user_id).first()
@@ -35,13 +35,13 @@ def generate_lesson(user_id: int, course_id: int, lesson_id: int):
 
     current_lesson = plan[lesson_key]
 
-    promt = generate_lesson_prompt.substitute(
+    prompt = generate_lesson_prompt.substitute(
         language=language,
         course_theme=course_theme,
         lesson_topic=current_lesson
     )
     
-    response = AuroraAlphaClient.generate_response(prompt=promt)
+    response = AuroraAlphaClient.generate_response(prompt=prompt)
     json_response = json.loads(response)
 
     lesson = Lessons(
@@ -53,7 +53,7 @@ def generate_lesson(user_id: int, course_id: int, lesson_id: int):
         lesson_topic=current_lesson,
         theory=json_response.get("theory", None),
         task=json_response.get("task", None),
-        is_complated=False,
+        is_completed=False,
     )
 
     db().add(lesson)
