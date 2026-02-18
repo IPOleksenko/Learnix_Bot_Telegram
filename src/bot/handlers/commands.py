@@ -13,12 +13,12 @@ router = Router()
 
 @router.message(Command("start"))
 async def start_cmd(message: Message):
-    add_user(message.from_user.id)
+    user, message_text = add_user(message.from_user.id)
 
-    return await message.answer(
+    return await message.reply(
 f"""Hello, {message.from_user.first_name}!
 Welcome to Learnix Bot!
-You added to database!
+{message_text}
 """)
 
 @router.message(Command("generate_course"))
