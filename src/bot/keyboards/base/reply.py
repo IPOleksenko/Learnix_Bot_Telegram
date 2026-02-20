@@ -1,6 +1,5 @@
 from bot.keyboards.base.base import KeyboardBase
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
-from typing import List, Optional, TypeVar, Generic
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
 
 class ReplyKeyboardBase(

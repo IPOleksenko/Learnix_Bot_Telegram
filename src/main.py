@@ -10,7 +10,7 @@ from config.config import BOT_TOKEN
 from bot.handlers.commands import router as commands_router
 from bot.handlers.callbacks import router as callbacks_router
 
-from bot.keyboards.menu_keyboards import router as menu_router
+from bot.handlers.message import router as message_router
 
 from db.middleware import DBSessionMiddleware
 
@@ -20,7 +20,7 @@ dp = Dispatcher()
 async def main():
     dp.include_router(commands_router)
     dp.include_router(callbacks_router)
-    dp.include_router(menu_router)
+    dp.include_router(message_router)
     
     dp.update.middleware(DBSessionMiddleware())
     

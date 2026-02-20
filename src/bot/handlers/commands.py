@@ -8,18 +8,25 @@ from api.user.add_user import add_user
 from api.lessons.generate_course import generate_course
 from api.lessons.generate_lesson import generate_lesson
 from api.lessons.checking_lesson import checking_lesson
+from bot.keyboards.factory.reply import create_start_menu_reply_keyboard
+from bot.keyboards.storages.keyboards.reply import USER_START_MENU_REPLY_KEYBOARDS
 
 router = Router()
 
 @router.message(Command("start"))
 async def start_cmd(message: Message):
-    user, message_text = add_user(message.from_user.id)
+    user, user_result_text = add_user(message.from_user.id)
 
-    return await message.reply(
-f"""Hello, {message.from_user.first_name}!
+    kb = create_start_menu_reply_keyboard()
+
+    USER_START_MENU_REPLY_KEYBOARDS[message.from_user.id] = kb.keyboard_id
+
+    message_text = f"""
+Hello, {message.from_user.first_name}!
 Welcome to Learnix Bot!
-{message_text}
-""")
+{user_result_text}
+"""
+    await message.reply(message_text, reply_markup=kb.get_keyboard())
 
 @router.message(Command("generate_course"))
 async def generate_course_cmd(message: Message):
@@ -46,10 +53,10 @@ async def generate_course_cmd(message: Message):
             
         json_response = json.dumps(theme_dict, ensure_ascii=False, indent=2)
         
-        return await message.answer(json_response)
+        await message.answer(json_response)
     
     except Exception as e:
-        return await message.answer(f"Error: {e}")
+        await message.answer(f"Error: {e}")
 
 
 @router.message(Command("generate_lesson"))
@@ -86,10 +93,10 @@ async def generate_lesson_cmd(message: Message):
         
         json_response = json.dumps(lesson_dict, ensure_ascii=False, indent=2)
 
-        return await message.answer(json_response)
+        await message.answer(json_response)
     
     except Exception as e:
-        return await message.answer(f"Error: {e}")
+        await message.answer(f"Error: {e}")
 
 @router.message(Command("check_lesson"))
 async def check_lesson_cmd(message: Message):
@@ -125,7 +132,7 @@ async def check_lesson_cmd(message: Message):
             'feedback': feedback
         }
         json_response = json.dumps(lesson_dict, ensure_ascii=False, indent=2)
-        return await message.answer(json_response)
+        await message.answer(json_response)
     
     except Exception as e:
-        return await message.answer(f"Error: {e}")
+        await message.answer(f"Error: {e}")
