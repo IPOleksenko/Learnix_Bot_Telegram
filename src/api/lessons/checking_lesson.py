@@ -2,7 +2,7 @@ import json
 from db.models.lessons.lessons import Lessons
 from db.models.user import User
 from db.deps import db
-from ai.model_clients import AuroraAlphaClient
+from ai.model_clients import Clients
 from templates.prompts.checking_lesson_prompt import checking_lesson_prompt
 
 def checking_lesson(user_id: int, course_id: int, lesson_id: int, message: str):
@@ -19,7 +19,7 @@ def checking_lesson(user_id: int, course_id: int, lesson_id: int, message: str):
         answer=message,
         language=lesson.language
     )
-    response = AuroraAlphaClient.generate_response(prompt=prompt)
+    response = Clients["default"].generate_response(prompt=prompt)
     json_response = json.loads(response)
     
     if json_response.get("is_correct", False):

@@ -9,7 +9,7 @@ from api.lessons.generate_course import generate_course
 from api.lessons.generate_lesson import generate_lesson
 from api.lessons.checking_lesson import checking_lesson
 from bot.keyboards.factory.reply import create_start_menu_reply_keyboard
-from bot.keyboards.storages.keyboards.reply import USER_START_MENU_REPLY_KEYBOARDS
+from bot.keyboards.storages.keyboards.reply import user_reply_keyboards
 
 router = Router()
 
@@ -19,7 +19,7 @@ async def start_cmd(message: Message):
 
     kb = create_start_menu_reply_keyboard()
 
-    USER_START_MENU_REPLY_KEYBOARDS[message.from_user.id] = kb.keyboard_id
+    user_reply_keyboards[message.from_user.id] = kb.keyboard_id
 
     message_text = f"""
 Hello, {message.from_user.first_name}!

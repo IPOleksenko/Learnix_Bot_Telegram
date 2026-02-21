@@ -1,17 +1,17 @@
 from aiogram.filters import BaseFilter
 from aiogram.types import Message
 from bot.keyboards.storages.keyboards.reply import (
-    START_MENU_REPLY_KEYBOARDS,
-    USER_START_MENU_REPLY_KEYBOARDS,
+    reply_keyboards,
+    user_reply_keyboards,
 )
 
 class IsNavigationButton(BaseFilter):
     async def __call__(self, message: Message) -> bool:
-        keyboard_id = USER_START_MENU_REPLY_KEYBOARDS.get(message.from_user.id)
+        keyboard_id = user_reply_keyboards.get(message.from_user.id)
         if not keyboard_id:
             return False
 
-        kb = START_MENU_REPLY_KEYBOARDS.get(keyboard_id)
+        kb = reply_keyboards.get(keyboard_id)
         if not kb:
             return False
 
