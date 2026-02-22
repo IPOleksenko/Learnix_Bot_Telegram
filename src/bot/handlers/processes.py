@@ -6,6 +6,7 @@ from aiogram.fsm.context import FSMContext
 from bot.fsm.fsm import StartMenuFSM
 from api.lessons.generate_course import generate_course
 from api.lessons.checking_lesson import checking_lesson
+from bot.keyboards.factory.inline import create_confirmation_inline_keyboard
 
 router = Router()
 
@@ -27,12 +28,20 @@ async def process_course_title(message: Message, state: FSMContext):
             for i, (name, desc) in enumerate(theme.plan.items())
         ])
 
+        await state.update_data(
+            user_id=message.from_user.id,
+            course_id=theme.id
+        )
+
+        kb = create_confirmation_inline_keyboard().get_keyboard()
+
         await sent_message.edit_text(f"""
 Course «{theme.name}» created
 
 Course plan:
 {course_plan}
-""")
+""", reply_markup=kb)
+        
     except Exception as e:
         await message.answer(f"Error: {e}")
 

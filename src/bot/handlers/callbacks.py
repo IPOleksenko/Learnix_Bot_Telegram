@@ -9,6 +9,7 @@ from bot.keyboards.storages.keyboards.inline import inline_keyboards
 from bot.fsm.fsm import StartMenuFSM
 from bot.keyboards.factory.inline import create_lesson_menu_inline_keyboard
 from api.lessons.generate_lesson import generate_lesson
+from bot.keyboards.factory.reply import create_start_menu_reply_keyboard
 
 router = Router()
 
@@ -64,7 +65,7 @@ async def open_lesson(callback: CallbackQuery, state: FSMContext):
         if not callback.message:
             return
         
-        sent_message = await callback.message.answer("Loading lesson...")
+        message = await callback.message.edit_text("Loading lesson...")
 
         _, course_id_str, lesson_id_str = callback.data.split(":", 2)
         course_id = int(course_id_str)
@@ -94,7 +95,32 @@ async def open_lesson(callback: CallbackQuery, state: FSMContext):
             'created_at': str(lesson.created_at) if hasattr(lesson, 'created_at') else None,
         }
         json_response = json.dumps(lesson_dict, ensure_ascii=False, indent=2)
-        await sent_message.edit_text(json_response)
+        await message.edit_text(json_response)
 
     except Exception as e:
         await callback.message.answer(f"Error: {str(e)}")
+
+@router.callback_query(F.data.startswith("confirmation:"))
+async def process_confirmation(callback: CallbackQuery, state: FSMContext):
+    try:
+        await callback.answer()
+        
+        _, answer = callback.data.split(":")
+
+        data = await state.get_data()
+        user_id = data.get("user_id")
+        course_id = data.get("course_id")
+
+        if answer == "yes":
+            kb = create_lesson_menu_inline_keyboard(callback.from_user.id, course_id).get_keyboard()
+            await callback.message.edit_text("Course confirmed", reply_markup=kb)
+            return await state.set_state(StartMenuFSM.waiting_for_course_to_continue)
+        elif answer == "no":
+            kb = create_start_menu_reply_keyboard(user_id)
+            await callback.message.edit_text("Course cancelled")
+            await callback.message.answer("Choose your next action", reply_markup=kb.get_keyboard())
+            return await state.clear()
+        else:
+            return callback.message.answer("Invalid choice.")
+    except Exception as e:
+        return callback.message.answer(f"Error: {str(e)}")
