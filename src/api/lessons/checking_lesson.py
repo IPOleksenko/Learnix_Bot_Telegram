@@ -21,9 +21,11 @@ def checking_lesson(user_id: int, course_id: int, lesson_id: int, message: str):
     )
     response = Clients["default"].generate_response(prompt=prompt)
     json_response = json.loads(response)
+
+    is_correct = json_response.get("is_correct", False)
     
-    if json_response.get("is_correct", False):
+    if is_correct:
         lesson.is_completed = True
         db().commit()
 
-    return lesson, json_response.get("feedback", "")
+    return lesson, is_correct, json_response.get("feedback", "")

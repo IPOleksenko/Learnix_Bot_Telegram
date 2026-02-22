@@ -6,14 +6,14 @@ from aiogram.fsm.context import FSMContext
 from bot.fsm.fsm import StartMenuFSM
 from api.lessons.generate_course import generate_course
 from api.lessons.checking_lesson import checking_lesson
-from bot.keyboards.factory.inline import create_confirmation_inline_keyboard
+from bot.keyboards.factory.inline import create_confirmation_inline_keyboard, create_lesson_menu_inline_keyboard
 
 router = Router()
 
 @router.message(StartMenuFSM.waiting_for_course_title)
 async def process_course_title(message: Message, state: FSMContext):
     try:
-        sent_message = await message.answer("The training course is generated")
+        sent_message = await message.answer("Course is generated")
         title = message.text
 
         theme = generate_course(user_id=message.from_user.id, lesson_theme=title)
@@ -55,26 +55,26 @@ async def process_lesson_answer(message: Message, state: FSMContext):
         course_id = data.get("course_id")
         lesson_id = data.get("lesson_id")
     
-        lesson, feedback = checking_lesson(user_id=user_id, course_id=course_id, lesson_id=lesson_id, message=message.text)
+        lesson, is_correct, feedback = checking_lesson(user_id=user_id, course_id=course_id, lesson_id=lesson_id, message=message.text)
 
-        lesson_dict = {
-            'id': lesson.id,
-            'user_id': lesson.user_id,
-            'theme_id': lesson.theme_id,
-            'lesson_id': lesson.lesson_id,
-            'language': lesson.language,
-            'course_theme': lesson.course_theme,
-            'lesson_topic': lesson.lesson_topic,
-            'theory': lesson.theory,
-            'task': lesson.task,
-            'is_completed': lesson.is_completed,
-            'created_at': str(lesson.created_at) if hasattr(lesson, 'created_at') else None,
-            'feedback': feedback
-        }
-        json_response = json.dumps(lesson_dict, ensure_ascii=False, indent=2)
+        if feedback:
+            feedback_text = f"Feedback:\n{feedback}\n\n"
+        else:
+            feedback_text = "No feedback available.\n\n"
 
-        await sent_message.edit_text(json_response)
+        message_text = f"""
+{lesson.course_theme} - {lesson.lesson_topic}
 
-        await state.clear()
+{feedback_text}
+"""
+        await sent_message.edit_text(message_text)
+
+        if is_correct:
+            kb = create_lesson_menu_inline_keyboard(message.from_user.id, course_id).get_keyboard()
+            await message.answer("Congratulations! You've completed the lesson.", reply_markup=kb)
+        
+            await state.clear()
+
+            
     except Exception as e:
         await message.answer(f"Error: {e}")

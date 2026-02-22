@@ -1,5 +1,3 @@
-import json
-
 from aiogram import Router, F
 from aiogram.types import CallbackQuery
 from aiogram.fsm.context import FSMContext
@@ -81,21 +79,14 @@ async def open_lesson(callback: CallbackQuery, state: FSMContext):
 
         lesson = generate_lesson(user_id=user_id, course_id=course_id, lesson_id=lesson_id)
 
-        lesson_dict = {
-            'id': lesson.id,
-            'user_id': lesson.user_id,
-            'theme_id': lesson.theme_id,
-            'lesson_id': lesson.lesson_id,
-            'language': lesson.language,
-            'course_theme': lesson.course_theme,
-            'lesson_topic': lesson.lesson_topic,
-            'theory': lesson.theory,
-            'task': lesson.task,
-            'is_completed': lesson.is_completed,
-            'created_at': str(lesson.created_at) if hasattr(lesson, 'created_at') else None,
-        }
-        json_response = json.dumps(lesson_dict, ensure_ascii=False, indent=2)
-        await message.edit_text(json_response)
+        message_text = f"""
+{lesson.course_theme} - {lesson.lesson_topic}
+
+{lesson.theory}
+
+{lesson.task}
+"""
+        await message.edit_text(message_text)
 
     except Exception as e:
         await callback.message.answer(f"Error: {str(e)}")
