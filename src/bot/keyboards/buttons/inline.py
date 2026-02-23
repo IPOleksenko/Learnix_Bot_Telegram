@@ -48,5 +48,14 @@ async def user_course_lesson_inline_buttons(user_id: int, course_id: int) -> lis
             )
         )
 
+        if lessons and all(statuses):
+            buttons.insert(
+                0,
+                InlineKeyboardButton(
+                    text="⭐️ CERTIFICATE ⭐️",
+                    callback_data=f"generate_certificate:{course_id}"
+                )
+            )
+
     return buttons
 

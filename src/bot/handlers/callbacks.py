@@ -1,13 +1,16 @@
 from aiogram import Router, F
-from aiogram.types import CallbackQuery
+from aiogram.types import BufferedInputFile, CallbackQuery
 from aiogram.fsm.context import FSMContext
-
+from datetime import datetime
 
 from bot.keyboards.storages.keyboards.inline import inline_keyboards
 from bot.fsm.fsm import StartMenuFSM
 from bot.keyboards.factory.inline import create_lesson_menu_inline_keyboard
 from api.lessons.generate_lesson import generate_lesson
 from bot.keyboards.factory.reply import create_start_menu_reply_keyboard
+from api.certificate.service import generate_certificate
+from db.deps import db
+from db.models.lessons.themes import Theme
 
 router = Router()
 
@@ -47,13 +50,14 @@ async def process_continue_course(callback: CallbackQuery, state: FSMContext):
 
         await callback.message.edit_text(
             f"Select lesson: {course_id}",
-            reply_markup=kb.get_keyboard()
+            reply_markup=kb.get_keyboard(), 
+            parse_mode=None
         )
 
         await state.clear()
 
     except Exception as e:
-        await callback.message.answer(f"Error: {e}")
+        await callback.message.answer(f"Error: {e}", parse_mode=None)
 
 @router.callback_query(F.data.startswith("choose_lesson:"))
 async def open_lesson(callback: CallbackQuery, state: FSMContext):
@@ -86,10 +90,10 @@ async def open_lesson(callback: CallbackQuery, state: FSMContext):
 
 {lesson.task}
 """
-        await message.edit_text(message_text)
+        await message.edit_text(message_text, parse_mode=None)
 
     except Exception as e:
-        await callback.message.answer(f"Error: {str(e)}")
+        await callback.message.answer(f"Error: {str(e)}", parse_mode=None)
 
 @router.callback_query(F.data.startswith("confirmation:"))
 async def process_confirmation(callback: CallbackQuery, state: FSMContext):
@@ -114,4 +118,44 @@ async def process_confirmation(callback: CallbackQuery, state: FSMContext):
         else:
             return callback.message.answer("Invalid choice.")
     except Exception as e:
-        return callback.message.answer(f"Error: {str(e)}")
+        return callback.message.answer(f"Error: {str(e)}", parse_mode=None)
+    
+@router.callback_query(F.data.startswith("generate_certificate:"))
+async def generate_certificate_handler(callback: CallbackQuery):
+    try:
+        session = db()
+        
+        await callback.answer()
+
+        if not callback.message:
+            return
+        
+        course_id = int(callback.data.split(":")[1])
+        user_id = callback.from_user.id
+
+        name = callback.from_user.full_name
+
+        theme_obj = session.query(Theme).filter_by(id=course_id).first()
+        if not theme_obj:
+            await callback.message.answer("Theme not found.")
+            return
+        course_name = theme_obj.name
+
+        date = datetime.now().strftime("%Y-%m-%d")
+
+        await callback.message.edit_text("Generating certificate...")
+
+        certificate_bytes = generate_certificate(name, course_name, date)
+        file = BufferedInputFile(certificate_bytes.read(), filename="certificate.pdf")
+
+        await callback.message.answer_document(
+            document=file,
+            caption="Here is your certificate!"
+        )
+
+        kb = create_start_menu_reply_keyboard(user_id)
+        await callback.message.edit_text("Certificate generated successfully!")
+        await callback.message.answer("Choose your next action", reply_markup=kb.get_keyboard())
+
+    except Exception as e:
+        await callback.message.answer(f"Error: {str(e)}", parse_mode=None)

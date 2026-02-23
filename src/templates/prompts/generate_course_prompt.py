@@ -23,7 +23,7 @@ When analyzing the topic:
 Also:
 - detect the language of the topic and include it as "detected_language";
 - independently determine the appropriate number of lessons based on the full scope of the topic. If the topic is very narrow or simple, it may be covered in a single lesson; otherwise, break it down into multiple logically sequenced lessons;
-- create the plan strictly in JSON format, where the lesson keys are their sequential numbers as strings: "0", "1", "2", and so on.
+- create the plan strictly in JSON format, where the lesson keys are their sequential numbers as strings: "0", "1", "2", and so on. **Keys must be strings, not numbers.**
 
 IMPORTANT COURSE STRUCTURE REQUIREMENTS:
 

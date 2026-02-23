@@ -24,7 +24,7 @@ async def process_course_title(message: Message, state: FSMContext):
         await state.clear()
 
         course_plan = "\n".join([
-            f"\t{i+1}. {desc}"
+            f"\t{i}. {desc}"
             for i, (name, desc) in enumerate(theme.plan.items())
         ])
 
@@ -40,10 +40,10 @@ Course «{theme.name}» created
 
 Course plan:
 {course_plan}
-""", reply_markup=kb.get_keyboard())
+""", reply_markup=kb.get_keyboard(), parse_mode=None)
         
     except Exception as e:
-        await message.answer(f"Error: {e}")
+        await message.answer(f"Error: {e}", parse_mode=None)
 
 @router.message(StartMenuFSM.waiting_for_lesson_answer)
 async def process_lesson_answer(message: Message, state: FSMContext):
@@ -67,7 +67,7 @@ async def process_lesson_answer(message: Message, state: FSMContext):
 
 {feedback_text}
 """
-        await sent_message.edit_text(message_text)
+        await sent_message.edit_text(message_text, parse_mode=None)
 
         if is_correct:
             kb = await create_lesson_menu_inline_keyboard(message.from_user.id, course_id)
@@ -77,4 +77,4 @@ async def process_lesson_answer(message: Message, state: FSMContext):
 
             
     except Exception as e:
-        await message.answer(f"Error: {e}")
+        await message.answer(f"Error: {e}", parse_mode=None)

@@ -4,6 +4,8 @@ from dotenv import load_dotenv
 
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../'))
 
+templates_path = os.path.join(project_root, 'src/templates')
+
 load_dotenv(project_root + '/.env')
 
 BOT_TOKEN = getenv("BOT_TOKEN")

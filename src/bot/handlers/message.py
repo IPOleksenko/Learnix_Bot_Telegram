@@ -40,7 +40,7 @@ async def create_course(message: Message, state: FSMContext):
 
         await message.answer("Enter course name:")
     except Exception as e:
-        await message.answer(f"Error: {e}")
+        await message.answer(f"Error: {e}", parse_mode=None)
 
 @router.message(F.text == START_MENU_REPLY_BUTTONS[1].text) # CONTINUE COURSE
 async def continue_course(message: Message, state: FSMContext):
@@ -50,4 +50,4 @@ async def continue_course(message: Message, state: FSMContext):
         await state.set_state(StartMenuFSM.waiting_for_course_to_continue)
         await message.answer("Which course should I continue?", reply_markup=kb.get_keyboard())
     except Exception as e:
-        await message.answer(f"Error: {e}")
+        await message.answer(f"Error: {e}", parse_mode=None)
