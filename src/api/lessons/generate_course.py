@@ -9,8 +9,9 @@ from ai.model_clients import Clients
 from templates.prompts.generate_course_prompt import generate_course_prompt
 
 def generate_course(user_id: int, lesson_theme: str):
-
-    user = db().query(User).filter_by(telegram_id=user_id).first()
+    session = db()
+    
+    user = session.query(User).filter_by(telegram_id=user_id).first()
     if user is None:
         raise Exception("User not found")
     
@@ -27,8 +28,8 @@ def generate_course(user_id: int, lesson_theme: str):
         plan=json_response.get("plan", []),
         is_learning_request=json_response.get("is_learning_request", True)
     )
-    db().add(theme)
-    db().commit()
-    db().refresh(theme)
+    session.add(theme)
+    session.commit()
+    session.refresh(theme)
 
     return theme

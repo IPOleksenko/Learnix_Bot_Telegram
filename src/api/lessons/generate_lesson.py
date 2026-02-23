@@ -10,18 +10,20 @@ from ai.model_clients import Clients
 from templates.prompts.generate_lesson_prompt import generate_lesson_prompt
 
 def generate_lesson(user_id: int, course_id: int, lesson_id: int):
-    user = db().query(User).filter_by(telegram_id=user_id).first()
+    session = db()
+
+    user = session.query(User).filter_by(telegram_id=user_id).first()
     if user is None:
         raise Exception("User not found")
     
-    theme = db().query(Theme).filter_by(user_id=user.id, id=course_id).first()
+    theme = session.query(Theme).filter_by(user_id=user.id, id=course_id).first()
     if theme is None:
         raise Exception("Theme not found for user")
     
     if lesson_id > theme.count_lessons:
         raise Exception("Invalid lesson ID for the given theme")
     
-    lesson = db().query(Lessons).filter_by(user_id=user.id, theme_id=theme.id, lesson_id=lesson_id).first()
+    lesson = session.query(Lessons).filter_by(user_id=user.id, theme_id=theme.id, lesson_id=lesson_id).first()
     if lesson:
         return lesson
 
@@ -56,9 +58,9 @@ def generate_lesson(user_id: int, course_id: int, lesson_id: int):
         is_completed=False,
     )
 
-    db().add(lesson)
-    db().commit()
-    db().refresh(lesson)
+    session.add(lesson)
+    session.commit()
+    session.refresh(lesson)
 
     return lesson
     
