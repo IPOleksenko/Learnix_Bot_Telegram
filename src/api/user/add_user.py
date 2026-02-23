@@ -2,7 +2,7 @@ from db.deps import db
 from db.models.user import User
 
 
-def add_user(user_id: int) -> User:
+async def add_user(user_id: int) -> User:
     session = db()
     user = session.query(User).filter_by(telegram_id=user_id).first()
     if user:

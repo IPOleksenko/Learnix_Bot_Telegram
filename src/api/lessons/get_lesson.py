@@ -5,7 +5,7 @@ from db.models.lessons.themes import Theme
 from db.models.lessons.lessons import Lessons
 
 
-def get_course_lessons(user_id: int, course_id: int) -> List[Dict]:
+async def get_course_lessons(user_id: int, course_id: int) -> List[Dict]:
     session = db()
 
     theme = (
@@ -27,7 +27,7 @@ def get_course_lessons(user_id: int, course_id: int) -> List[Dict]:
 
     return lessons
 
-def get_this_lesson_is_completed(
+async def get_this_lesson_is_completed(
     user_id: int,
     course_id: int,
     lessons_id: List[int]

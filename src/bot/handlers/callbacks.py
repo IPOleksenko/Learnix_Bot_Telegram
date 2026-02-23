@@ -43,11 +43,11 @@ async def process_continue_course(callback: CallbackQuery, state: FSMContext):
 
         await callback.message.edit_text("Loading your courses...")
 
-        kb = create_lesson_menu_inline_keyboard(callback.from_user.id, course_id).get_keyboard()
+        kb = await create_lesson_menu_inline_keyboard(callback.from_user.id, course_id)
 
         await callback.message.edit_text(
             f"Select lesson: {course_id}",
-            reply_markup=kb
+            reply_markup=kb.get_keyboard()
         )
 
         await state.clear()
@@ -77,7 +77,7 @@ async def open_lesson(callback: CallbackQuery, state: FSMContext):
         )
         await state.set_state(StartMenuFSM.waiting_for_lesson_answer)
 
-        lesson = generate_lesson(user_id=user_id, course_id=course_id, lesson_id=lesson_id)
+        lesson = await generate_lesson(user_id=user_id, course_id=course_id, lesson_id=lesson_id)
 
         message_text = f"""
 {lesson.course_theme} - {lesson.lesson_topic}
@@ -103,8 +103,8 @@ async def process_confirmation(callback: CallbackQuery, state: FSMContext):
         course_id = data.get("course_id")
 
         if answer == "yes":
-            kb = create_lesson_menu_inline_keyboard(callback.from_user.id, course_id).get_keyboard()
-            await callback.message.edit_text("Course confirmed", reply_markup=kb)
+            kb = await create_lesson_menu_inline_keyboard(callback.from_user.id, course_id)
+            await callback.message.edit_text("Course confirmed", reply_markup=kb.get_keyboard())
             return await state.set_state(StartMenuFSM.waiting_for_course_to_continue)
         elif answer == "no":
             kb = create_start_menu_reply_keyboard(user_id)

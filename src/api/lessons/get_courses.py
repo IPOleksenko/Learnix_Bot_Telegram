@@ -5,7 +5,7 @@ from db.models.user import User
 from db.models.lessons.themes import Theme
 from api.lessons.get_lesson import get_this_lesson_is_completed
 
-def get_user_courses(user_id: int) -> List[Theme]:
+async def get_user_courses(user_id: int) -> List[Theme]:
     session = db()
     
     themes = (
@@ -23,7 +23,7 @@ def get_user_courses(user_id: int) -> List[Theme]:
 
     return themes
 
-def get_this_course_is_completed(user_id: int, course_ids: List[int]) -> List[bool]:
+async def get_this_course_is_completed(user_id: int, course_ids: List[int]) -> List[bool]:
 
     session = db()
 
@@ -41,7 +41,7 @@ def get_this_course_is_completed(user_id: int, course_ids: List[int]) -> List[bo
 
         lesson_ids = [int(k) for k in theme.plan.keys()]
 
-        statuses = get_this_lesson_is_completed(user_id, course_id, lesson_ids)
+        statuses = await get_this_lesson_is_completed(user_id, course_id, lesson_ids)
 
         completed_status.append(all(statuses))
 

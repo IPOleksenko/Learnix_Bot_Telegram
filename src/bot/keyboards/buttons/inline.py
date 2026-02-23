@@ -7,11 +7,11 @@ CONFIRMATION_BUTTONS = [
     InlineKeyboardButton(text="NO", callback_data="confirmation:no")
 ]
 
-def user_courses_inline_buttons(user_id: int) -> list[InlineKeyboardButton]:
-    courses = get_user_courses(user_id)
+async def user_courses_inline_buttons(user_id: int) -> list[InlineKeyboardButton]:
+    courses = await get_user_courses(user_id)
     course_ids = [course.id for course in courses]
 
-    statuses = get_this_course_is_completed(user_id, course_ids)
+    statuses = await get_this_course_is_completed(user_id, course_ids)
 
     buttons = []
     for course, is_completed in zip(courses, statuses):
@@ -25,12 +25,12 @@ def user_courses_inline_buttons(user_id: int) -> list[InlineKeyboardButton]:
 
     return buttons
 
-def user_course_lesson_inline_buttons(user_id: int, course_id: int) -> list[InlineKeyboardButton]:
-    lessons = get_course_lessons(user_id, course_id)
+async def user_course_lesson_inline_buttons(user_id: int, course_id: int) -> list[InlineKeyboardButton]:
+    lessons = await get_course_lessons(user_id, course_id)
 
     lesson_ids = [int(lesson["name"]) for lesson in lessons]
 
-    statuses = get_this_lesson_is_completed(
+    statuses = await get_this_lesson_is_completed(
         user_id=user_id,
         course_id=course_id,
         lessons_id=lesson_ids

@@ -5,7 +5,7 @@ from db.deps import db
 from ai.model_clients import Clients
 from templates.prompts.checking_lesson_prompt import checking_lesson_prompt
 
-def checking_lesson(user_id: int, course_id: int, lesson_id: int, message: str):
+async def checking_lesson(user_id: int, course_id: int, lesson_id: int, message: str):
     session = db()
     
     user = session.query(User).filter_by(telegram_id=user_id).first()
@@ -21,7 +21,7 @@ def checking_lesson(user_id: int, course_id: int, lesson_id: int, message: str):
         answer=message,
         language=lesson.language
     )
-    response = Clients["default"].generate_response(prompt=prompt)
+    response = await Clients["default"].generate_response(prompt=prompt)
     json_response = json.loads(response)
 
     is_correct = json_response.get("is_correct", False)

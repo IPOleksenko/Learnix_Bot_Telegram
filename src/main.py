@@ -14,6 +14,7 @@ from bot.handlers.processes import router as processes_router
 from bot.handlers.message import router as message_router
 
 from db.middleware import DBSessionMiddleware
+from bot.middleware.sequential_processing import UserSequentialProcessingMiddleware
 
 bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 dp = Dispatcher()
@@ -24,6 +25,7 @@ async def main():
     dp.include_router(message_router)
     dp.include_router(processes_router)
     
+    dp.message.middleware(UserSequentialProcessingMiddleware())
     dp.update.middleware(DBSessionMiddleware())
     
     await dp.start_polling(bot)

@@ -45,7 +45,7 @@ async def create_course(message: Message, state: FSMContext):
 @router.message(F.text == START_MENU_REPLY_BUTTONS[1].text) # CONTINUE COURSE
 async def continue_course(message: Message, state: FSMContext):
     try:
-        kb = create_course_menu_inline_keyboard(message.from_user.id)
+        kb = await create_course_menu_inline_keyboard(message.from_user.id)
 
         await state.set_state(StartMenuFSM.waiting_for_course_to_continue)
         await message.answer("Which course should I continue?", reply_markup=kb.get_keyboard())

@@ -16,7 +16,7 @@ async def process_course_title(message: Message, state: FSMContext):
         sent_message = await message.answer("Course is generated")
         title = message.text
 
-        theme = generate_course(user_id=message.from_user.id, lesson_theme=title)
+        theme = await generate_course(user_id=message.from_user.id, lesson_theme=title)
 
         if not theme.is_learning_request:
             return await message.answer("The provided prompt does not seem to be an educational request.")
@@ -33,14 +33,14 @@ async def process_course_title(message: Message, state: FSMContext):
             course_id=theme.id
         )
 
-        kb = create_confirmation_inline_keyboard().get_keyboard()
+        kb = await create_confirmation_inline_keyboard()
 
         await sent_message.edit_text(f"""
 Course «{theme.name}» created
 
 Course plan:
 {course_plan}
-""", reply_markup=kb)
+""", reply_markup=kb.get_keyboard())
         
     except Exception as e:
         await message.answer(f"Error: {e}")
@@ -55,7 +55,7 @@ async def process_lesson_answer(message: Message, state: FSMContext):
         course_id = data.get("course_id")
         lesson_id = data.get("lesson_id")
     
-        lesson, is_correct, feedback = checking_lesson(user_id=user_id, course_id=course_id, lesson_id=lesson_id, message=message.text)
+        lesson, is_correct, feedback = await checking_lesson(user_id=user_id, course_id=course_id, lesson_id=lesson_id, message=message.text)
 
         if feedback:
             feedback_text = f"Feedback:\n{feedback}\n\n"
@@ -70,8 +70,8 @@ async def process_lesson_answer(message: Message, state: FSMContext):
         await sent_message.edit_text(message_text)
 
         if is_correct:
-            kb = create_lesson_menu_inline_keyboard(message.from_user.id, course_id).get_keyboard()
-            await message.answer("Congratulations! You've completed the lesson.", reply_markup=kb)
+            kb = await create_lesson_menu_inline_keyboard(message.from_user.id, course_id)
+            await message.answer("Congratulations! You've completed the lesson.", reply_markup=kb.get_keyboard())
         
             await state.clear()
 

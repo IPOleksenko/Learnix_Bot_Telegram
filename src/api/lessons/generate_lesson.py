@@ -9,7 +9,7 @@ from ai.model_clients import Clients
 
 from templates.prompts.generate_lesson_prompt import generate_lesson_prompt
 
-def generate_lesson(user_id: int, course_id: int, lesson_id: int):
+async def generate_lesson(user_id: int, course_id: int, lesson_id: int):
     session = db()
 
     user = session.query(User).filter_by(telegram_id=user_id).first()
@@ -43,7 +43,7 @@ def generate_lesson(user_id: int, course_id: int, lesson_id: int):
         lesson_topic=current_lesson
     )
     
-    response = Clients["default"].generate_response(prompt=prompt)
+    response = await Clients["default"].generate_response(prompt=prompt)
     json_response = json.loads(response)
 
     lesson = Lessons(
