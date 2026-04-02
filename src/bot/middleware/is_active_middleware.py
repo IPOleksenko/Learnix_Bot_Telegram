@@ -1,31 +1,11 @@
 from typing import Callable, Any, Awaitable
 from aiogram import BaseMiddleware
-from aiogram.types import Update
+
 from db.models.user import User
 from db.session import SessionLocal
-
-
-def is_start_command(update: Update) -> bool:
-    """Check if the message is the /start command"""
-    if update.message and update.message.text:
-        return update.message.text.startswith("/start")
-    return False
-
-def get_user_id_from_update(update: Update):
-    """Extract user_id from any type of update"""
-    if update.message:
-        return update.message.from_user.id
-    elif update.callback_query:
-        return update.callback_query.from_user.id
-    elif update.inline_query:
-        return update.inline_query.from_user.id
-    elif update.chosen_inline_result:
-        return update.chosen_inline_result.from_user.id
-    elif update.poll_answer:
-        return update.poll_answer.user.id
-    elif update.chat_member:
-        return update.chat_member.new_chat_member.user.id
-    return None
+from aiogram.types import Update
+from bot.utils.get_user_from_update import get_user_from_update
+from bot.utils.is_start_command import is_start_command
 
 class IsActiveMiddleware(BaseMiddleware):
     async def __call__(
@@ -37,7 +17,8 @@ class IsActiveMiddleware(BaseMiddleware):
         if is_start_command(event):
             return await handler(event, data)
     
-        user_id = get_user_id_from_update(event)
+        user = get_user_from_update(event)
+        user_id = user.id if user else None
         if user_id is None:
             return await handler(event, data)
 

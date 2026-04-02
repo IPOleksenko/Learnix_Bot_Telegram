@@ -11,10 +11,10 @@ router = Router()
 
 @router.message(Command("start"))
 async def start_cmd(message: Message):
-    user_id = message.from_user.id
-    user, user_result_text = await add_user(user_id)
+    user = message.from_user
+    user, user_result_text = await add_user(user)
 
-    kb = create_start_menu_reply_keyboard(user_id)
+    kb = create_start_menu_reply_keyboard(user.id)
 
     message_text = f"""
 Hello, {message.from_user.first_name}!

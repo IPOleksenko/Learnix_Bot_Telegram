@@ -33,7 +33,7 @@ async def reply_pagination_handler(message: Message):
         reply_markup=kb.get_keyboard(),
     )
 
-@router.message(F.text == START_MENU_REPLY_BUTTONS[0].text) # CREATE COURSE
+@router.message(F.text == START_MENU_REPLY_BUTTONS[0].text) # CREATE AI COURSE
 async def create_course(message: Message, state: FSMContext):
     try:
         await state.set_state(StartMenuFSM.waiting_for_course_title)
@@ -42,7 +42,7 @@ async def create_course(message: Message, state: FSMContext):
     except Exception as e:
         await message.answer(f"Error: {e}", parse_mode=None)
 
-@router.message(F.text == START_MENU_REPLY_BUTTONS[1].text) # CONTINUE COURSE
+@router.message(F.text == START_MENU_REPLY_BUTTONS[1].text) # CONTINUE AI COURSE
 async def continue_course(message: Message, state: FSMContext):
     try:
         kb = await create_course_menu_inline_keyboard(message.from_user.id)

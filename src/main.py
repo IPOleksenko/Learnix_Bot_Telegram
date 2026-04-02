@@ -16,20 +16,26 @@ from bot.handlers.message import router as message_router
 from db.middleware import DBSessionMiddleware
 from bot.middleware.sequential_processing import UserSequentialProcessingMiddleware
 from bot.middleware.is_active_middleware import IsActiveMiddleware
+from bot.middleware.ensure_user_middleware import EnsureUserMiddleware
 
 bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 dp = Dispatcher()
 
 async def main():
+    # ROUTERS
     dp.include_router(commands_router)
     dp.include_router(callbacks_router)
     dp.include_router(message_router)
     dp.include_router(processes_router)
     
-    dp.message.middleware(UserSequentialProcessingMiddleware())
-    dp.update.middleware(IsActiveMiddleware())
+    # MIDDLEWARES
     dp.update.middleware(DBSessionMiddleware())
+    dp.update.middleware(EnsureUserMiddleware())
+    dp.update.middleware(IsActiveMiddleware())
     
+    dp.message.middleware(UserSequentialProcessingMiddleware())
+    
+    # START POLLING
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
