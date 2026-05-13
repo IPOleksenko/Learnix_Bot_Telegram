@@ -1,16 +1,23 @@
-from ai.models.openrouter.aurora_alpha import AuroraAlpha
-from ai.models.stepfun.step_3_5_flash_free import Step_3_5_FlashFree
+from ai.base import AI_Base
 
-AuroraAlphaClient = AuroraAlpha(
-    "https://openrouter.ai/api/v1", 
-)
+BASE_URL = "https://openrouter.ai/api/v1"
 
-StandartClient = Step_3_5_FlashFree(
-    "https://openrouter.ai/api/v1", 
-)
+models = [
+    ("nvidia/nemotron-3-super-120b-a12b:free", BASE_URL),
+    ("poolside/laguna-m.1:free", BASE_URL),
+    ("poolside/laguna-xs.2:free", BASE_URL),
+]
 
 Clients = {
-    "openrouter/aurora-alpha": AuroraAlphaClient,
-    "stepfun/step-3.5-flash:free": StandartClient,
+    model: AI_Base(
+        model=model,
+        base_url=base_url
+    )
+    for model, base_url in models
 }
-Clients["default"] = Clients["stepfun/step-3.5-flash:free"]
+
+Clients["default"] = next(iter(Clients.values()))
+Clients["all"] = lambda: [
+    client for key, client in Clients.items()
+    if key not in ("all", "default")
+]

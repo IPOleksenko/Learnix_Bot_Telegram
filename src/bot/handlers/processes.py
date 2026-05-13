@@ -1,5 +1,3 @@
-import json
-
 from aiogram import Router
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
@@ -12,14 +10,51 @@ router = Router()
 
 @router.message(StartMenuFSM.waiting_for_course_title)
 async def process_course_title(message: Message, state: FSMContext):
-    try:
-        sent_message = await message.answer("Course is generated")
-        title = message.text
+    # Send initial message
+    sent_message = await message.answer("🔄 Course generation started...")
+    title = message.text
+    
+    # Track status of each model
+    model_statuses = {}
 
-        theme = await generate_course(user_id=message.from_user.id, lesson_theme=title)
+    async def on_status_update(status_info):
+        """Callback to update message with model status"""
+        model_name = status_info["model"]
+        status = status_info["status"]
+        error = status_info.get("error", "")
+        
+        # Map status to emoji
+        if status == "processing":
+            model_statuses[model_name] = f"⏳ {model_name}: Processing..."
+        elif status == "success":
+            model_statuses[model_name] = f"✅ {model_name}: Complete"
+        elif status == "error":
+            model_statuses[model_name] = f"❌ {model_name}: {error}"
+        
+        # Build status message
+        status_text = "📊 Course generation status:\n\n"
+        for status_line in model_statuses.values():
+            status_text += f"{status_line}\n"
+        
+        try:
+            await sent_message.edit_text(status_text)
+        except Exception:
+            pass  # Silently ignore if edit fails
+
+    try:
+        # Generate course using all models
+        theme = await generate_course(
+            user_id=message.from_user.id, 
+            theme=title,
+            on_status_update=on_status_update
+        )
 
         if not theme.is_learning_request:
-            return await message.answer("The provided prompt does not seem to be an educational request.")
+            await sent_message.edit_text(
+                "❌ The provided prompt does not seem to be an educational request.",
+                parse_mode=None
+            )
+            return
         
         await state.clear()
 
@@ -35,15 +70,20 @@ async def process_course_title(message: Message, state: FSMContext):
 
         kb = await create_confirmation_inline_keyboard()
 
-        await sent_message.edit_text(f"""
-Course «{theme.name}» created
+        await sent_message.edit_text(
+            f"""✨ Course «{theme.name}» created
 
-Course plan:
-{course_plan}
-""", reply_markup=kb.get_keyboard(), parse_mode=None)
-        
+📚 Course plan:
+{course_plan}""",
+            reply_markup=kb.get_keyboard(),
+            parse_mode=None
+        )
+    
     except Exception as e:
-        await message.answer(f"Error: {e}", parse_mode=None)
+        await sent_message.edit_text(
+            f"❌ Error: {str(e)}",
+            parse_mode=None
+        )
 
 @router.message(StartMenuFSM.waiting_for_lesson_answer)
 async def process_lesson_answer(message: Message, state: FSMContext):

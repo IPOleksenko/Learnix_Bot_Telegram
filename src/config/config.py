@@ -10,6 +10,8 @@ load_dotenv(project_root + '/.env')
 
 BOT_TOKEN = getenv("BOT_TOKEN")
 
+RECONNECTION_DELAY = int(getenv("RECONNECTION_DELAY", 10))  # seconds
+
 DB_USER = getenv("DB_USER")
 DB_PASSWORD = getenv("DB_PASSWORD")
 DB_HOST = getenv("DB_HOST")
