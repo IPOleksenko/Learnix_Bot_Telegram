@@ -5,6 +5,14 @@ from db.models.lessons.themes import Theme
 from db.models.lessons.lessons import Lessons
 
 
+def _parse_lesson_key(name: str) -> int:
+    if "_" in name:
+        _, numeric = name.split("_", 1)
+    else:
+        numeric = name
+    return int(numeric)
+
+
 async def get_course_lessons(user_id: int, course_id: int) -> List[Dict]:
     session = db()
 
@@ -21,9 +29,14 @@ async def get_course_lessons(user_id: int, course_id: int) -> List[Dict]:
     if theme is None:
         raise Exception("Course not found")
 
-    lessons = [
-        {"name": name, "desc": desc} for name, desc in theme.plan.items()
-    ]
+    lessons = []
+    for name, desc in theme.plan.items():
+        try:
+            lesson_id = _parse_lesson_key(name)
+        except (ValueError, IndexError):
+            raise Exception(f"Invalid lesson key format: {name}")
+
+        lessons.append({"id": lesson_id, "name": name, "desc": desc})
 
     return lessons
 

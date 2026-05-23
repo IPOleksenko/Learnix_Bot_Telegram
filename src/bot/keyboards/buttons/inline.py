@@ -28,7 +28,7 @@ async def user_courses_inline_buttons(user_id: int) -> list[InlineKeyboardButton
 async def user_course_lesson_inline_buttons(user_id: int, course_id: int) -> list[InlineKeyboardButton]:
     lessons = await get_course_lessons(user_id, course_id)
 
-    lesson_ids = [int(lesson["name"]) for lesson in lessons]
+    lesson_ids = [lesson["id"] for lesson in lessons]
 
     statuses = await get_this_lesson_is_completed(
         user_id=user_id,
@@ -43,8 +43,8 @@ async def user_course_lesson_inline_buttons(user_id: int, course_id: int) -> lis
 
         buttons.append(
             InlineKeyboardButton(
-                text=f"{prefix}{lesson['name']}. {lesson['desc']}",
-                callback_data=f"choose_lesson:{course_id}:{lesson['name']}"
+                text=f"{prefix}{lesson['id']}. {lesson['desc']}",
+                callback_data=f"choose_lesson:{course_id}:{lesson['id']}"
             )
         )
 

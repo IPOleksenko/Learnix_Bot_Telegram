@@ -31,9 +31,12 @@ async def generate_lesson(user_id: int, course_id: int, lesson_id: int):
     course_theme = theme.name
     plan = theme.plan
 
-    lesson_key = f"{lesson_id}"
+    lesson_key = f"lesson_{lesson_id}"
     if lesson_key not in plan:
-        raise Exception(f"Lesson {lesson_key} not found in theme plan")
+        lesson_key = str(lesson_id)
+
+    if lesson_key not in plan:
+        raise Exception(f"Lesson {lesson_id} not found in theme plan")
 
     current_lesson = plan[lesson_key]
 
